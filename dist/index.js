@@ -77,4 +77,57 @@ program
     .action((data) => {
     console.log(Buffer.from(data, "base64").toString("utf-8"));
 });
+program
+    .command("crypto <coin>")
+    .description("Get cryptocurrency price in USD")
+    .action(async (coin) => {
+    try {
+        const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coin.toLowerCase()}&vs_currencies=usd`);
+        const data = await response.json();
+        if (data[coin.toLowerCase()] && data[coin.toLowerCase()].usd) {
+            console.log(`Current price of ${coin}: $${data[coin.toLowerCase()].usd}`);
+        }
+        else {
+            console.log(`Could not find price for ${coin}. Ensure you use the full coin name (e.g., bitcoin) or correct ID.`);
+        }
+    }
+    catch (error) {
+        console.error("Error fetching crypto data:", error.message);
+    }
+});
+program
+    .command("country <name>")
+    .description("Get country information")
+    .action(async (name) => {
+    try {
+        const response = await fetch(`https://restcountries.com/v3.1/name/${name}`);
+        const data = await response.json();
+        if (Array.isArray(data) && data.length > 0) {
+            const country = data[0];
+            console.log(`Name: ${country.name.common}`);
+            console.log(`Capital: ${country.capital ? country.capital[0] : 'N/A'}`);
+            console.log(`Region: ${country.region}`);
+            console.log(`Population: ${country.population.toLocaleString()}`);
+        }
+        else {
+            console.log(`Could not find country: ${name}`);
+        }
+    }
+    catch (error) {
+        console.error("Error fetching country data:", error.message);
+    }
+});
+program
+    .command("ip")
+    .description("Get your public IP address")
+    .action(async () => {
+    try {
+        const response = await fetch("https://api.ipify.org?format=json");
+        const data = await response.json();
+        console.log(`Your IP Address is: ${data.ip}`);
+    }
+    catch (error) {
+        console.error("Error fetching IP:", error.message);
+    }
+});
 program.parse();
